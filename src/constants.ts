@@ -1,0 +1,1 @@
+export const PHONE = "+380951589350";

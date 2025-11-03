@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@theme {
+  --color-dark-green: #09332f;
+  --color-teal: #1a8f84;
+  --color-light-black: #222; 
+  --color-tg-blue: #0088CC;
+  --color-viber-purple: #7360f2;
+  --color-dark-green-transparent: #3A5C59;
+  --color-tg-blue-transparent: #33A0D6;
+  --color-viber-purple-transparent: #8F80F5;
+}
