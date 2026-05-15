@@ -8,88 +8,32 @@ import smile2new from '../../assets/smile2-new.png';
 import smile3 from '../../assets/smile3.png';
 import smile3new from '../../assets/smile3-new.png';
 import { Button } from "../ui/Button";
-import { GMap } from "../ui/GMap";
-import { Logo } from "../images/Logo";
-import { UserCircle } from "lucide-react";
-import { Logo as SmallLogo } from '../Logo'
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { PriceDialog } from '../ui/PriceDialog';
-import { useCallback, useMemo, useState } from 'react';
-import { ContactsDialog } from '../ui/ContactsDialog';
-import { PHONE } from '../../constants';
+import { useContacts } from '../../context/ContactsContext';
+import { scrollToSection } from '../lib/utils';
 
 export const Home = () => {
   const [showPrices, setShowPrices] = useState(false)
-  const [showContacts, setShowContacts] = useState(false)
+  const { openContacts } = useContacts()
+  const location = useLocation()
 
   const buttons = useMemo(() => [
-    { title: 'Записатись на прийом', action: () => setShowContacts(true) },
+    { title: 'Записатись на прийом', action: () => openContacts() },
     { title: 'Наші ціни', action: () => setShowPrices(true) },
-  ], []);
-
-  const navItems = useMemo(() => [{
-    title: 'Послуги',
-    section: 'section-services'
-  }, {
-    title: 'Про нас',
-    section: 'section-about'
-  }, {
-    title: 'Галерея посмішок',
-    section: 'section-smiles'
-  }], [])
+  ], [openContacts]);
 
   const handleClosePricesDialog = useCallback(() => setShowPrices(false), []);
 
-  const handleCloseContactsDialog = useCallback(() => setShowContacts(false), []);
-
-  const onNavItemClick = useCallback((section: string) => {
-    const targetEl = document.getElementById(section);
-    if (!targetEl) return;
-
-    const headerEl = document.getElementById('site-header');
-    const headerH = headerEl?.offsetHeight ?? 0;
-
-    const top =
-      targetEl.getBoundingClientRect().top + window.scrollY - headerH - 8;
-
-    window.scrollTo({ top, behavior: 'smooth' });
-  }, []);
+  // Header nav on another page hands off the target section via router state.
+  useEffect(() => {
+    const section = (location.state as { scrollTo?: string } | null)?.scrollTo;
+    if (section) scrollToSection(section);
+  }, [location.state]);
 
   return (
     <>
-      <header id="site-header" className='sticky top-0 z-10'>
-        <nav className="flex items-center justify-between px-6 py-4 bg-white shadow-md gap-4">
-          <div className="flex gap-2 items-center">
-            <SmallLogo className="w-10 h-10 md:w-15 md:h-15" />
-            <div className="flex flex-col hidden md:block">
-              <p className="font-bold text-xl uppercase">Prykhodkov</p>
-              <p className="text-gray-600 text-sm uppercase">dental clinic</p>
-            </div>
-          </div>
-
-          <ul className="flex items-center gap-2 md:gap-6">
-            {navItems.map((el) => (
-              <li
-                key={el.title}
-                className="py-4 border-t-1 border-transparent hover:border-t-1 hover:border-teal duration-300 cursor-pointer"
-              >
-                <Button variant="link" onClick={() => onNavItemClick(el.section)}>
-                  {el.title}
-                </Button>
-              </li>
-            ))}
-          </ul>
-
-          <div className="flex items-center gap-3 hidden md:flex">
-            <Button className="bg-dark-green hover:opacity-80" onClick={() => setShowContacts(true)}>
-              <span className="uppercase flex gap-2 items-center">
-                <UserCircle size={16} />
-                <span>Записатись на прийом</span>
-              </span>
-            </Button>
-          </div>
-        </nav>
-      </header>
-
       <main>
         <section>
           <div className="h-[calc(100vh-92px)] relative flex items-center flex-col items-center justify-center overflow-hidden">
@@ -141,7 +85,7 @@ export const Home = () => {
             </ul>
 
             <div className="flex gap-[14px] justify-center mt-[84px] font-normal">
-              <Button className="bg-dark-green hover:opacity-80" onClick={() => setShowContacts(true)}>
+              <Button className="bg-dark-green hover:opacity-80" onClick={openContacts}>
                 <span className="flex gap-2 items-center">
                   <span>Записатись на прийом</span>
                 </span>
@@ -156,7 +100,7 @@ export const Home = () => {
         >
           <div className="flex justify-center flex-col w-[100%] md:max-w-[780px] md:w-[50%]">
             <h2 className="text-[42px] font-bold text-dark-green text-center md:text-left">Опис</h2>
-            <p className="text-dark-green mt-[28px]">
+            <div className="text-dark-green mt-[28px]">
               <div>
                 <p>Історія нашої клініки почалась ще в 1994 році — з маленького сімейного кабінету «Здорова родина». Ми росли, змінювали підхід, технології та назви, але незмінним залишилося головне — сімейна справа двох поколіннь сімʼї Приходькових, де досвід поєднується зі сучасним поглядом на стоматологію.</p>
               </div>
@@ -169,7 +113,7 @@ export const Home = () => {
               </ul>
             </div>
             <p className='mt-3'><strong>Наша місія</strong> — не просто лікувати зуби, а повертати людям радість, комфорт і гарну посмішку на довгі роки.</p>
-            </p>
+            </div>
             <div className="flex gap-[14px] justify-center mt-[84px] font-normal">
               <Button className="bg-dark-green hover:opacity-80 p-[21px] font-normal">
                 <span className="flex gap-2 items-center">
@@ -211,32 +155,7 @@ export const Home = () => {
         </section>
       </main>
 
-      <footer className="flex flex-col bg-white mt-[98px] overflow-hidden">
-        <div className='flex gap-2 flex-col md:flex-row'>
-          <div className="flex-1 flex">
-            <GMap />
-          </div>
-
-          <div className="flex flex-1 flex-col gap-3 px-8 relative">
-            <div className="absolute z-[0] w-full h-full t-[20px] opacity-[0.1]">
-              <Logo />
-            </div>
-            <h2 className="text-[36px] md:text-[42px] font-normal font-light">Корисна інформація</h2> 
-            <div className="flex flex-col"> 
-              <h3 className="text-teal text-[14px] font-medium uppercase">Наш телефон</h3> 
-              <p className="font-light">{PHONE}</p> </div> <div className="flex flex-col"> 
-              <h3 className="text-teal text-[14px] font-medium uppercase">Завітайте до нас!</h3> 
-              <p className="font-light">Prykhodkov Dental clinic</p> 
-              <p className="font-light">Сікорського, 4В</p> 
-              <p className="font-light">Київ, Україна</p> 
-            </div> 
-          </div>
-        </div>
-        <div className='flex bg-dark-green text-xs text-white py-4 px-8 mt-4 md:mt-0 justify-center'>Copyright © 2025 Prykhodkov Dental Clinic. All rights reserved</div>
-      </footer>
-
       <PriceDialog open={showPrices} onClose={handleClosePricesDialog} />
-      <ContactsDialog open={showContacts} onClose={handleCloseContactsDialog} />
     </>
   );
 };

@@ -5,6 +5,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export const SITE_HEADER_ID = "site-header"
+
+export function scrollToSection(sectionId: string) {
+  const targetEl = document.getElementById(sectionId)
+  if (!targetEl) return
+
+  const headerH = document.getElementById(SITE_HEADER_ID)?.offsetHeight ?? 0
+  const top =
+    targetEl.getBoundingClientRect().top + window.scrollY - headerH - 8
+
+  window.scrollTo({ top, behavior: "smooth" })
+}
+
 export function openWithFallback(deepLink: string, webFallback: string, timeoutMs = 900) {
   // Try to open the native app in the SAME tab
   const t = setTimeout(() => {
